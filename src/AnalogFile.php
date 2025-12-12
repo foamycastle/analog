@@ -20,10 +20,10 @@ class AnalogFile extends Analog
     public function __construct()
     {
         try{
-            $path = env('ANALOG_LOG_PATH', 'analog.log');
+            $path = env('ANALOG_PATH', 'analog.log');
         }catch (\Exception $e){
             try {
-                defined('ANALOG_LOG_PATH') && $path = constant('ANALOG_LOG_PATH');
+                defined('ANALOG_PATH') && $path = constant('ANALOG_PATH');
                 defined('LOG_PATH') && $path ??= constant('LOG_PATH');
             }catch(\Exception $e){
                 $path = 'analog.log';
@@ -65,6 +65,6 @@ class AnalogFile extends Analog
             $context,
             $this->getNow()
         );
-        fputs($this->resource, (string)$entry);
+        fputs($this->resource, $entry.PHP_EOL);
     }
 }
