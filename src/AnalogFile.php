@@ -17,8 +17,23 @@ class AnalogFile extends Analog
     private bool $loggerState=false;
     private $resource;
     private string $path;
-    public function __construct(string $path)
+    public function __construct()
     {
+        try{
+            $path = env('ANALOG_LOG_PATH', 'analog.log');
+        }catch (\Exception $e){
+            try {
+                defined('ANALOG_LOG_PATH') && $path = constant('ANALOG_LOG_PATH');
+                defined('LOG_PATH') && $path ??= constant('LOG_PATH');
+            }catch(\Exception $e){
+                $path = 'analog.log';
+            }
+        }
+        if(!file_exists($path)){
+            if(!touch($path)){
+                throw new \Exception('Unable to create file '.$path);
+            }
+        }
         if(!realpath($path)) {
             if(dirname($path) === '.'){
                 $this->path =  __DIR__.DIRECTORY_SEPARATOR.$path;
