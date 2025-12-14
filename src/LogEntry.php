@@ -17,7 +17,6 @@ class LogEntry implements \Stringable
     private array $matchedRawParams=[];
     private string $compiledFormat='';
     public function __construct(
-        private readonly string    $format,
         private readonly string  $message,
         private readonly ?LogLevel $level=null,
         private array              $context=[],
@@ -25,11 +24,6 @@ class LogEntry implements \Stringable
     )
     {
         $dateTime ??= new DateTime('now');
-        $this->context=array_merge([
-            'datetime'=>function () use ($dateTime) {return $dateTime->format('Y-m-d H:i:s');},
-            'level'=>$this->level?->value,
-            'message'=>fn()=>$this->message
-        ], $context);
         $this->matchParams();
         $this->resolveParams();
     }
@@ -40,22 +34,12 @@ class LogEntry implements \Stringable
     }
     protected function compileEntry():void
     {
-        $this->compiledFormat = str_replace($this->matchedRawParams, $this->resolvedParams, $this->format);
+        $this->compiledFormat = str_replace($this->matchedRawParams, $this->resolvedParams, $this->message);
     }
-    public function setFormat(string $format):self
-    {
-        return new self(
-            $format,
-            $this->message,
-            $this->level,
-            $this->context,
-            $this->dateTime
-        );
-    }
+
     public function setMessage(string $message):self
     {
         return new self(
-            $this->format,
             $this->message,
             $this->level,
             $this->context,
@@ -65,7 +49,6 @@ class LogEntry implements \Stringable
     public function setParams(array $params):self
     {
         return new self(
-            $this->format,
             $this->message,
             $this->level,
             $params,
@@ -75,7 +58,6 @@ class LogEntry implements \Stringable
     public function setDateTime(DateTime $dateTime):self
     {
         return new self(
-            $this->format,
             $this->message,
             $this->level,
             $this->context,
@@ -85,7 +67,6 @@ class LogEntry implements \Stringable
     public function setLevel(LogLevel $level):self
     {
         return new self(
-            $this->format,
             $this->message,
             $level,
             $this->context,
@@ -94,7 +75,7 @@ class LogEntry implements \Stringable
     }
     protected function matchParams():void
     {
-        preg_match_all('/%(\w+)%/', $this->format, $matches, PREG_SET_ORDER);
+        preg_match_all('/%(\w+)%/', $this->message, $matches, PREG_SET_ORDER);
         $this->matchedRawParams=array_column($matches, 0);
     }
     protected function resolveParams():void
