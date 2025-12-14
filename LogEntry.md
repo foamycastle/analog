@@ -64,10 +64,10 @@ All setter methods return a new `LogEntry` instance:
 ### Basic Usage
 
 ```php
-use Foamycastle\Analog\LogEntry;
+use Foamycastle\Analog\LogMessage;
 use Foamycastle\Analog\LogLevel;
 
-$entry = new LogEntry(
+$entry = new LogMessage(
     format: '[%datetime%] %level%: %message%',
     message: 'User login successful',
     level: LogLevel::INFO

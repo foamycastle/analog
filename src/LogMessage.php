@@ -11,14 +11,14 @@ namespace Foamycastle\Analog;
 
 use DateTime;
 
-class LogEntry implements \Stringable
+class LogMessage implements \Stringable
 {
     private array $resolvedParams=[];
     private array $matchedRawParams=[];
     private string $compiledFormat='';
     public function __construct(
         private readonly string  $message,
-        private array            $context=[],
+        private readonly array   $context=[],
     )
     {
         $this->matchParams();

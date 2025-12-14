@@ -58,7 +58,7 @@ class AnalogFile extends Analog
     function log(LogLevel $level, $message, array $context = array())
     {
         if(!$this->loggerState) return;
-        $entry = new LogEntry(
+        $entry = new LogMessage(
             $this->getFormat(),
             $message,
             $level,
