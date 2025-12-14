@@ -58,19 +58,28 @@ class AnalogFile extends Analog
      * @param LogLevel $level
      * @param string $message
      * @param array $context
+     * @throws \DateInvalidTimeZoneException
      */
     function log($level, $message, array $context = array())
     {
         /** @var LogLevel $level */
         if(!$this->loggerState) return;
         $timezone = env("ANALOG_TIMEZONE",date_default_timezone_get());
+        try {
+            $datetime = (new \DateTime('now', new \DateTimeZone($timezone)))->format('Y-m-d H:i:s');
+        }catch (\Exception $e){
+            $timezone = 'UTC';
+            $datetime = (new \DateTime('now', new \DateTimeZone($timezone)))->format('Y-m-d H:i:s');
+        }
         $format = env('ANALOG_FORMAT', '[%datetime%] %timezone% [%level%]: %message%');
+
         $entry = new LogEntry($format, [
             'level' => $level->value,
             'message' => (new LogMessage($message, $context)),
-            'datetime' => (new \DateTime('now',new \DateTimeZone($timezone)))->format('Y-m-d H:i:s'),
-            'timezone' => env("ANALOG_TIMEZONE",date_default_timezone_get())
+            'datetime' => $datetime,
+            'timezone' => $timezone
         ]);
-        fwrite($this->resource, $entry);
+
+        fwrite($this->resource, $entry.PHP_EOL);
     }
 }

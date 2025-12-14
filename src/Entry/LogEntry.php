@@ -18,18 +18,13 @@ use Foamycastle\Analog\ParamMatcher;
 class LogEntry extends ParamMatcher
 {
 
-    private DateTimeImmutable $datetime;
-    private DateTimeZone $timezone;
 
     public function __construct(
         private string            $format,
         private array             $params = []
     )
     {
-        $this->timezone = new DateTimeZone(env('ANALOG_TIMEZONE', date_default_timezone_get()));
-        $this->datetime = new DateTimeImmutable('now', $this->timezone);
         parent::__construct($format, $params);
-
     }
 
 }

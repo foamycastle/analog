@@ -19,9 +19,10 @@ class ParamMatcher implements \Stringable
     private string $compiledFormat='';
     public function __construct(
         private  string  $message,
-        private  array   $context=[],
+        array   $context=[],
     )
     {
+        $this->params=$context;
         $this->matchParams();
         $this->resolveParams();
     }
@@ -53,18 +54,17 @@ class ParamMatcher implements \Stringable
     }
     protected function resolveParams():void
     {
-        foreach ($this->context as $param=>$value) {
-            $outputValue=null;
-            if(isset($this->matchedRawParams[$param])){
-                if(is_callable($value)){
-                    $outputValue=$value();
-                }elseif($value instanceof \Closure){
-                    $outputValue=$value(...);
-                }else{
-                    $outputValue=$value;
-                }
-                $this->resolvedParams[$this->matchedRawParams[$param]]=$outputValue;
+        foreach ($this->params as $param=>$value) {
+            $outputValue='';
+            if(is_callable($value)){
+                $outputValue=$value();
+            }elseif($value instanceof \Closure){
+                $outputValue=$value(...);
+            }else{
+                $outputValue=$value;
             }
+            $this->resolvedParams[$this->matchedRawParams[$param] ?? $param]=$outputValue;
+
         }
     }
 }
