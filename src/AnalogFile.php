@@ -11,12 +11,12 @@ namespace Foamycastle\Analog;
 
 use DateTime;
 use Foamycastle\Analog\Analog;
+use Foamycastle\Analog\Entry\LogEntry;
 
 class AnalogFile extends Analog
 {
-    private bool $loggerState=false;
-    private $resource;
-    private string $path;
+    protected string $path;
+    protected $resource;
     public function __construct()
     {
         try{
@@ -48,23 +48,29 @@ class AnalogFile extends Analog
             throw new \Exception('Unable to open file '.$this->path);
         }
         $this->loggerState=true;
-        Analog::configure($this)->setTimezone(new \DateTimeZone(env('ANALOG_TIMEZONE', 'UTC')));
     }
     public function __destruct()
     {
         fclose($this->resource);
     }
 
-    function log(LogLevel $level, $message, array $context = array())
+    /**
+     * @param LogLevel $level
+     * @param string $message
+     * @param array $context
+     */
+    function log($level, $message, array $context = array())
     {
+        /** @var LogLevel $level */
         if(!$this->loggerState) return;
-        $entry = new LogMessage(
-            $this->getFormat(),
-            $message,
-            $level,
-            $context,
-            $this->getNow()
-        );
-        fputs($this->resource, $entry.PHP_EOL);
+        $timezone = env("ANALOG_TIMEZONE",date_default_timezone_get());
+        $format = env('ANALOG_FORMAT', '[%datetime%] %timezone% [%level%]: %message%');
+        $entry = new LogEntry($format, [
+            'level' => $level->value,
+            'message' => (new LogMessage($message, $context)),
+            'datetime' => (new \DateTime('now',new \DateTimeZone($timezone)))->format('Y-m-d H:i:s'),
+            'timezone' => env("ANALOG_TIMEZONE",date_default_timezone_get())
+        ]);
+        fwrite($this->resource, $entry);
     }
 }
