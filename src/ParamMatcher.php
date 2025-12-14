@@ -36,7 +36,7 @@ class ParamMatcher implements \Stringable
         $this->compiledFormat = str_replace(array_keys($this->resolvedParams), array_values($this->resolvedParams), $this->message);
     }
 
-    public function setMessage(string $message):self
+    public function setFormat(string $message):self
     {
         $this->message=$message;
         return $this;
